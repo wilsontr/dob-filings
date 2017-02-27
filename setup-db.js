@@ -7,11 +7,11 @@ const assert = require('assert');
 const async = require('async');
 
 
-var api_url = 'http://data.cityofnewyork.us/resource/rvhx-8trz.json';
+var externalDataUrl = config.get('externalDataUrl');
 
-fetch_api_data(api_url);
+fetchApiData(externalDataUrl);
 
-function fetch_api_data(url) {
+function fetchApiData(url) {
 	logger.info('Fetching NYC DOB API data...');
 	http.get(url, (res) => {
 		var body = '';
@@ -23,7 +23,7 @@ function fetch_api_data(url) {
 		res.on('end', () => {
 			try {
 				var responseData = JSON.parse(body);	
-				insert_mongo_data(responseData);
+				insertMongoData(responseData);
 			} catch (err) {
 				logger.error('Error loading remote json data', err);
 			}
@@ -33,7 +33,7 @@ function fetch_api_data(url) {
 	});	
 }
 
-function insert_mongo_data(data) {
+function insertMongoData(data) {
 	logger.info('Inserting data in mongodb...');
 	var dbUrl = config.get('dbUrl');
 
