@@ -1,0 +1,31 @@
+{
+  "name": "dob-filings",
+  "version": "1.0.0",
+  "description": "Sample application for surfacing NYC DOB job filings.",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "npm run build-css",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-css": "node-sass --include-path scss scss/screen.scss public/css/screen.css",
+    "watch-css": "nodemon -e scss -x \"npm run build-css\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wilsontr/dob-filings.git"
+  },
+  "author": "Trevor Wilson",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wilsontr/dob-filings/issues"
+  },
+  "homepage": "https://github.com/wilsontr/dob-filings#readme",
+  "dependencies": {
+    "body-parser": "^1.16.1",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.14.1",
+    "foundation": "^4.2.1-1",
+    "mongodb": "^2.2.24",
+    "node-sass": "^4.5.0",
+    "winston": "^2.3.1"
+  }
+}
