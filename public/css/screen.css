@@ -10,4 +10,22 @@ body {
   width: 1060px;
   margin: 0px auto 0px auto;
   box-shadow: 0px -3px 6px #333333;
-  background-color: #fff; }
+  background-color: #fff;
+  padding: 1rem; }
+
+.button-container {
+  text-align: right;
+  margin-top: 1rem; }
+  .button-container button {
+    margin-left: 0.5rem; }
+
+.applicant-row {
+  cursor: pointer; }
+  .applicant-row:hover {
+    background-color: #eaeaea; }
+
+.modal-content {
+  font-size: 1.1rem; }
+
+.modal#detail-modal {
+  max-width: 990px; }
