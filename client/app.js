@@ -1,17 +1,12 @@
 /* app.js */
 
-var _ = require('lodash'),
-	$ = require('jquery');
-
 var apiUrl = '/api/';
+var rootElement = '#appRoot';
 
-/*
-(function($)) {
-	initApp();
-})(jQuery);
-*/
+(function() {
+	initApp();	
+}());
 
-initApp();
 
 function initApp() {
 	fetchApplicants();
@@ -19,8 +14,25 @@ function initApp() {
 
 function fetchApplicants() {
 	$.get(apiUrl + '/applicants').then(function(response) {
-		if ( response && response.data && response.data.length ) {
-
+		if ( response ) {
+			renderApplicants(response);
 		}
 	});
+}
+
+function renderApplicants(applicants) {
+	var $applicantTable = $('<table></table>');
+	$.each(applicants, function(idx, applicant) {
+		var newApplicant = renderApplicant(applicant);
+		$applicantTable.append(newApplicant);
+	})
+	$(rootElement).empty().append($applicantTable);
+}
+
+function renderApplicant(applicant) {
+	return $(['<tr>',
+			'<td>' + applicant.applicant_s_last_name + '</td>',
+			'<td>' + applicant.applicant_s_first_name + '</td>',
+			'<td>' + applicant.job_status_descrp + '</td>',
+		'</tr>'].join(''))
 }
