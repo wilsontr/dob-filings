@@ -7,23 +7,25 @@ const logger = require('./logger.js');
 const sass = require('node-sass');
 
 
-router.use(function (req, res, next) {
+router.use((req, res, next) => {
   console.log("/" + req.method);
   next();
 });
 
-router.get("/", function (req, res) {
+app.use("/", router);
+
+router.use("/api", require("./api.js"));
+
+router.get("/", (req, res) => {
   res.sendFile(viewsPath + "index.html");
 });
 
-app.use("/", router);
-
 app.use(express.static('public'));
 
-app.use("*",function (req,res) {
+app.use("*", (req,res) => {
   res.sendFile(viewsPath + "404.html");
 });
 
-app.listen(3000, function () {
+app.listen(3000, () => {
   logger.info("App listening on port 3000");
 });
