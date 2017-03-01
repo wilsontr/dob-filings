@@ -4,7 +4,7 @@
   "description": "Sample application for surfacing NYC DOB job filings.",
   "main": "index.js",
   "scripts": {
-    "postinstall": "npm run build-css && gulp build",
+    "postinstall": "node setup-db.js && npm run build-css && gulp build",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build-css": "node-sass --include-path scss scss/screen.scss public/css/screen.css",
     "watch-css": "nodemon -e scss -x \"npm run build-css\""
