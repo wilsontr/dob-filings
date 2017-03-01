@@ -41,3 +41,19 @@ body {
 .modal#detail-modal {
 	max-width: 990px;
 }
+
+.search-bar {
+	font-size: 1.2rem;
+	text-align: right;
+}
+
+.search-input, .search-field {
+	width: 20rem;
+	display: inline-block;
+	margin-left: 0.5rem;
+}
+
+.search-term-block {
+	display: inline-block;
+	text-align: left;
+}

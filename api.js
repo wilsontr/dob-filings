@@ -20,12 +20,21 @@ router.get("/applicants", (req, res, next) => {
 		var pageSize = 50;
 		var pageNum = _.get(req, 'query.pageNum', 0);
 		var lastPage = false;
+		var searchTerm = _.get(req, 'query.searchTerm', '');
+		var searchField = _.get(req, 'query.searchField', '');
 		var queryOptions = {
 			"limit": pageSize,
 			"skip": pageNum * pageSize
 		};
+		var query = {};
 
-		applicants.find({}, queryOptions).toArray((err, result) => {
+		if ( searchTerm && searchField ) {
+			var searchRegex = new RegExp('.*' + searchTerm + '.*', 'gi');
+			query[searchField] = { $regex: searchRegex };
+			//query[searchField] = searchTerm;
+		}
+
+		applicants.find(query, queryOptions).toArray((err, result) => {
 			if ( err ) {
 				logger.error("Error fetching applicant records", err);
 				res.send([]);
@@ -41,6 +50,24 @@ router.get("/applicants", (req, res, next) => {
 			}
 			db.close();
 		});
+	});
+});
+
+router.get("/applicant/fields", (req, res, next) => {
+	MongoClient.connect(config.get('dbUrl'), (err, db) => {
+		var applicants = db.collection("applicants");	
+
+		applicants.findOne({}, (err, doc) => {
+			if ( err || !doc ) {
+				logger.error("Error fetching search fields", err);
+				res.send({});
+			} else {
+				let keys = _.keys(doc);
+				res.send(keys);
+			}
+			db.close();
+		});
+
 	});
 });
 
@@ -63,6 +90,8 @@ router.get("/applicant/:id", (req, res, next) => {
 
 	});
 });
+
+
 
 function processRecords(records) {
 	_.each(records, (record) => {

@@ -1,9 +1,11 @@
 /* app.js */
 
-var apiUrl = '/api/';
-var rootElement = '#appRoot';
-var currentPage = 0;
-var modalElem = null;
+var globals = {
+	apiUrl: '/api/',
+	rootElement: '#appRoot',
+	currentPage: 0,
+	searchTerm: ''
+};
 
 $(document).ready(function() {
 	initApp();	
@@ -11,21 +13,29 @@ $(document).ready(function() {
 
 function initApp() {
 	renderAppFrame();
-	renderDropdowns();
+	renderSearch();
 	renderTable();
 	renderButtons();
 	renderModal();
-	bindButtons();
 	fetchApplicants();
 }  
 
-function renderDropdowns() {
-
+function renderSearch() {
+	$.get(globals.apiUrl + '/applicant/fields')
+		.then(function(fields) {
+			var $search = $(renderTemplate('search', {searchFields: fields}));
+			$('#search').append($search);
+			globals.searchField = fields[0];
+			bindEvents();
+		})
+		.catch(function(err) {
+			logger.error('error rendering search field', err);
+		});
 }
+
 
 function renderModal() {
 	var $modal = $(renderTemplate('modal'));
-	
 	$('#modal-container').append($modal);
 }
 
@@ -39,7 +49,7 @@ function renderTemplate(name, data) {
 
 function renderAppFrame() {
 	var appFrame = renderTemplate('appFrame');
-	$(rootElement).html($(appFrame));
+	$(globals.rootElement).html($(appFrame));
 }
 
 function renderButtons() {
@@ -83,27 +93,24 @@ function renderTable() {
 		.append($applicantTable);
 }
 
-function fetchApplicants(pageNum) {
-	if ( !pageNum ) {
-		pageNum = 0;
-	}
+function fetchApplicants() {
 
 	var options = {
-		pageNum: pageNum,
-		sort: ''
+		pageNum: globals.currentPage,
+		sort: '',
+		searchTerm: globals.searchTerm,
+		searchField: globals.searchField
 	};
 
-	$("#table-content").empty();
-
-	$.get(apiUrl + '/applicants', options).then(function(response) {
+	$.get(globals.apiUrl + '/applicants', options).then(function(response) {
 		if ( response ) {
 			renderApplicants(response.result);
 			bindRowEvents();
-			updateButtonState(pageNum, response.lastPage);
+			updateButtonState(globals.currentPage, response.lastPage);
 		}
 	}).catch(function(err) {
 		console.error('error loading applicants', err);
-	});;
+	});
 }
 
 function updateButtonState(pageNum, lastPage) {
@@ -124,9 +131,11 @@ function updateButtonState(pageNum, lastPage) {
 	
 }
 
-function bindButtons() {
+function bindEvents() {
 	$("#previous-button").click(handlePreviousButtonClick);
 	$("#next-button").click(handleNextButtonClick);
+	$("#search-input").keyup(handleSearchChange);
+	$("#search-field").change(_.throttle(handleSearchChange, 50));
 }
 
 function bindRowEvents() {
@@ -135,15 +144,15 @@ function bindRowEvents() {
 
 function handlePreviousButtonClick(e) {
 	if ( !$(e.currentTarget).is(":disabled") ) {
-		currentPage--;
-		fetchApplicants(currentPage);		
+		globals.currentPage--;
+		fetchApplicants(globals.currentPage);		
 	}
 }
 
 function handleNextButtonClick(e) {
 	if ( !$(e.currentTarget).is(":disabled") ) {
-		currentPage++;
-		fetchApplicants(currentPage);
+		globals.currentPage++;
+		fetchApplicants();
 	}
 }
 
@@ -152,8 +161,17 @@ function handleRowClick(e) {
 	showModal(id);
 }
 
+function handleSearchChange(e) {
+	var $searchInput = $('#search-input');
+	var $searchField = $('#search-field');
+	globals.searchTerm = $searchInput.val();
+	globals.searchField = $searchField.val();
+	fetchApplicants();	
+}
+
+
 function showModal(applicantId) {
-	$.get(apiUrl + '/applicant/' + applicantId).then(function(response) {
+	$.get(globals.apiUrl + '/applicant/' + applicantId).then(function(response) {
 		var fullApplicant = renderTemplate('fullApplicant', {
 			'applicant': response
 		});	
