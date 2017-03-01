@@ -18,7 +18,7 @@ router.get("*", (req, res, next) => {
 router.get("/applicants", (req, res, next) => {
 	MongoClient.connect(config.get('dbUrl'), (err, db) => {
 		var applicants = db.collection("applicants");	
-		var pageSize = 50;
+		var pageSize = 20;
 		var pageNum = _.get(req, 'query.pageNum', 0);
 		var lastPage = false;
 		var searchTerm = _.get(req, 'query.searchTerm', '');
@@ -36,7 +36,7 @@ router.get("/applicants", (req, res, next) => {
 		var query = {};
 
 		if ( searchTerm && searchField ) {
-			var searchRegex = new RegExp('.*' + searchTerm + '.*', 'gi');
+			var searchRegex = new RegExp(searchTerm, 'gi');
 			query[searchField] = { $regex: searchRegex };
 		}
 
