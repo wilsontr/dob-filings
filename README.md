@@ -1,11 +1,11 @@
 # dob-filings
 Sample application for surfacing NYC DOB job filings.
 
-# Design Choices
+## Design Choices
 
 I haven't had to develop an app with just jQuery in years, but I decided to use as many modern tools as I could apply to this situation, with a bias toward tools that would let me get the app up and running quickly. 
 
-I used gulp and npm tasks to automate processes, and Handlebars to handle templates. Without a proper AMD library (I didn't get require.js running in this project), the way I'm storing the templates is difficult to read and not optimal. 
+I used gulp and npm tasks to automate processes, and Handlebars to handle templates. Without a proper AMD library (I didn't get require.js running in this project), the way I'm storing the templates is difficult to read and not optimal. I wrote a Node script to download the sample data set and insert into a local Mongo instance, which must be configured beforehand. 
 
 My Node app is very similar to the Node app I'm responsible for in my current job. It serves a single-page app and serves up data to the frontend via APIs. I went with MongoDB because it goes well with Node and it was easy to insert and manipulate the test data set. 
 
@@ -23,6 +23,6 @@ I could have converted the DB field names into nice names for the frontend acros
 
 I didn't implement any URL hash changes or front-end routing, so it would be bad UX to not be able to copy the URL you're at and paste it or bookmark it. 
 
-# Choice of Framework
+## Choice of Framework
 
 This is easy - I've been working on a very similar app to this on a Node/Gulp/Webpack/React/Alt.js stack, and so I'd happily use that for this application. Some of those pieces would take more setup time than the tools I used on this app, but the scalability and code-readability of an app like that would make the time spent more than worthwhile in the long run. 
