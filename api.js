@@ -14,6 +14,7 @@ router.get("*", (req, res, next) => {
 });
 
 
+
 router.get("/applicants", (req, res, next) => {
 	MongoClient.connect(config.get('dbUrl'), (err, db) => {
 		var applicants = db.collection("applicants");	
@@ -22,16 +23,21 @@ router.get("/applicants", (req, res, next) => {
 		var lastPage = false;
 		var searchTerm = _.get(req, 'query.searchTerm', '');
 		var searchField = _.get(req, 'query.searchField', '');
+		var sortField = _.get(req, 'query.sortField', '');
 		var queryOptions = {
 			"limit": pageSize,
 			"skip": pageNum * pageSize
 		};
+
+		if ( sortField ) {
+			queryOptions['sort'] = sortField;
+		}
+
 		var query = {};
 
 		if ( searchTerm && searchField ) {
 			var searchRegex = new RegExp('.*' + searchTerm + '.*', 'gi');
 			query[searchField] = { $regex: searchRegex };
-			//query[searchField] = searchTerm;
 		}
 
 		applicants.find(query, queryOptions).toArray((err, result) => {
@@ -76,7 +82,6 @@ router.get("/applicant/:id", (req, res, next) => {
 		var applicants = db.collection("applicants");	
 		var id = _.get(req, 'params.id', '');
 
-
 		applicants.findOne({"_id": ObjectId(id)}, (err, doc) => {
 			if ( err || !doc ) {
 				logger.error("Error fetching applicant", err);
@@ -90,7 +95,6 @@ router.get("/applicant/:id", (req, res, next) => {
 
 	});
 });
-
 
 
 function processRecords(records) {

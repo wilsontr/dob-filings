@@ -4,7 +4,28 @@ var globals = {
 	apiUrl: '/api/',
 	rootElement: '#appRoot',
 	currentPage: 0,
-	searchTerm: ''
+	searchTerm: '',
+	searchField: '',
+	sortField: ''
+};
+
+var displayFields = {
+	'applicant_s_last_name': 'Applicant\'s Last Name', 
+	'applicant_s_first_name': 'Applicant\'s First Name', 
+	'borough' : 'Borough',
+	'building_type': 'Building Type', 
+	'city_': 'City',
+	'state': 'State',
+	'job_status': 'Job Status',
+	'job_status_descrp': 'Job Status Description',
+	'job_type': 'Job Type',
+	'owner_s_business_name': 'Owner\'s Business Name',
+	'owner_s_last_name': 'Owner\'s Last Name',
+	'owner_s_first_name': 'Owner\'s First Name',
+	'proposed_height': 'Proposed Height',
+	'proposed_no_of_stories': 'Proposed Stories',
+	'total_est__fee': 'Total Est Fee',
+	'street_name': 'Street Name'
 };
 
 $(document).ready(function() {
@@ -13,26 +34,36 @@ $(document).ready(function() {
 
 function initApp() {
 	renderAppFrame();
-	renderSearch();
-	renderTable();
+	renderTopUI();
 	renderButtons();
 	renderModal();
 	fetchApplicants();
 }  
 
-function renderSearch() {
+function renderTopUI() {
 	$.get(globals.apiUrl + '/applicant/fields')
 		.then(function(fields) {
-			var $search = $(renderTemplate('search', {searchFields: fields}));
-			$('#search').append($search);
-			globals.searchField = fields[0];
+			renderSearch(fields);
+			renderSort(fields);
+			renderTable(fields);
 			bindEvents();
 		})
 		.catch(function(err) {
-			logger.error('error rendering search field', err);
+			console.error('error rendering search field', err);
 		});
 }
 
+function renderSearch(searchFields) {
+	var $search = $(renderTemplate('search', {searchFields: searchFields}));
+	$('#search').append($search);
+	globals.searchField = searchFields[0];
+}
+
+function renderSort(sortFields) {
+	var $sort = $(renderTemplate('sort', {sortFields: sortFields}));
+	$('#sort').append($sort);
+	globals.sortField = sortFields[0];
+}
 
 function renderModal() {
 	var $modal = $(renderTemplate('modal'));
@@ -61,32 +92,13 @@ function renderButtons() {
 }
 
 function renderTable() {
-	var tableHeaders = [
-		{
-			title: 'Name',
-			sortBy: 'name'
-		},
-		{
-			title: 'Job Status',
-			sortBy: 'job_status_descrp'
-		},
-		{
-			title: 'Latest Action',
-			sortBy: 'latest_action_date'
-		}
-	];
+
+	var tableHeaders = displayFields;
 
 	var $applicantTable = $(renderTemplate('contentTable'));
-	var $tableHeader = $(renderTemplate('tableHead'));
-	var $tableHeaderCells = $(renderTemplate('tableHeaderCells'));
+	var $tableHeader = $(renderTemplate('tableHead', {headers: tableHeaders}));
 	var $tableBody = $(renderTemplate('tableBody'));
 
-	$.each(tableHeaders, function(idx, header) {
-		var $newHeader = $(renderTemplate('tableHeaderCell', header));
-		$tableHeaderCells.append($newHeader);
-	});
-
-	$tableHeader.append($tableHeaderCells);
 	$applicantTable.append($tableHeader);	
 	$applicantTable.append($tableBody);
 	$("#content").empty()
@@ -97,9 +109,9 @@ function fetchApplicants() {
 
 	var options = {
 		pageNum: globals.currentPage,
-		sort: '',
 		searchTerm: globals.searchTerm,
-		searchField: globals.searchField
+		searchField: globals.searchField,
+		sortField: globals.sortField
 	};
 
 	$.get(globals.apiUrl + '/applicants', options).then(function(response) {
@@ -136,6 +148,7 @@ function bindEvents() {
 	$("#next-button").click(handleNextButtonClick);
 	$("#search-input").keyup(handleSearchChange);
 	$("#search-field").change(_.throttle(handleSearchChange, 50));
+	$("#sort-field").change(handleSortChange);
 }
 
 function bindRowEvents() {
@@ -169,6 +182,10 @@ function handleSearchChange(e) {
 	fetchApplicants();	
 }
 
+function handleSortChange(e) {
+	globals.sortField = $('#sort-field').val();
+	fetchApplicants();
+}
 
 function showModal(applicantId) {
 	$.get(globals.apiUrl + '/applicant/' + applicantId).then(function(response) {
@@ -191,26 +208,32 @@ function renderApplicants(applicants) {
 	});
 }
 
+function filterFields(row) {
+	return _.pick(row, _.keys(displayFields));
+}
+
 function renderApplicant(applicant) {
-	return renderTemplate('applicantRow', applicant);
+	var renderObject = filterFields(applicant);
+	return renderTemplate('applicantRow', {fields: renderObject, id: applicant._id});
 }
 
 /* Handlebars templates */
 
 var templates = {
-	appFrame: '<div id="search"></div><div id="content"></div><div id="buttons" class="button-container"></div><div id="modal-container"></div>',
+	appFrame: '<div id="search"></div><div id="sort"></div><div id="content"></div><div id="buttons" class="button-container"></div><div id="modal-container"></div>',
 	prevButton: '<button class="button primary" id="previous-button" disabled>Previous Page</button>',
 	nextButton: '<button class="button primary" id="next-button" disabled>Next Page</button>',
 	contentTable: '<table class="table"></table>',
-	tableHead: '<thead></thead>',
-	tableBody: '<tbody id="table-content" class="accordion" data-accordion></tbody>',
-	tableHeaderCells: '<tr></tr>',
-	tableHeaderCell: '<th class="sort-header data-sortBy="{{sortBy}}">{{title}}</th>',
-	applicantRow: '<tr class="applicant-row" data-id="{{_id}}"><td>{{full_name}}</td><td>{{job_status_descrp}}</td><td>{{latest_action_date}}</td></tr>',
+	//tableHead: '<thead><tr>{{#each headers}}<th class="sort-header data-sortBy="{{sortBy}}">{{title}}</th>{{/each}}</tr></thead>',
+	tableHead: '<thead><tr>{{#each headers}}<th class="sort-header data-sortBy="{{@key}}">{{this}}</th>{{/each}}</tr></thead>',
+	tableBody: '<tbody id="table-content"></tbody>',
+	//applicantRow: '<tr class="applicant-row" data-id="{{_id}}"><td>{{full_name}}</td><td>{{job_status_descrp}}</td><td>{{latest_action_date}}</td></tr>',
+	applicantRow: '<tr class="applicant-row" data-id="{{id}}">{{#each fields}}<td>{{this}} &nbsp;</td>{{/each}}</tr>',
 	modal: '<div id="detail-modal"></div>',
 	modalContent: '<div class="modal-content">{{{content}}}<div><div class="modal-buttons"></div>',
 	fullApplicant: '<h3>Viewing Applicant {{applicant.full_name}}</h3><table class="full-applicant"><tbody>{{#each applicant}}<tr><td>{{@key}}</td><td>{{this}}</td></tr>{{/each}}</tbody></table>',
 	search: '<div class="search-bar"><input type="text" id="search-input" class="search-input" placeholder="Search..."/>' + 
 		'<span class="search-term-block"><label>Search Field</label><select id="search-field" class="search-field">{{#each searchFields}}<option value={{this}}>{{this}}</option>{{/each}}</select></span>' + 
-		'</div>'
+		'</div>',
+	sort: '<div class="sort-bar"><span class="sort-field-block"><label>Sort By</label><select id="sort-field" class="sort-field"><option value="">Select...</option>{{#each sortFields}}<option value={{this}}>{{this}}</option>{{/each}}</select></span></div>'
 };

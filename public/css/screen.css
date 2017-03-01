@@ -30,15 +30,25 @@ body {
 .modal#detail-modal {
   max-width: 990px; }
 
-.search-bar {
+.search-bar, .sort-bar {
   font-size: 1.2rem;
-  text-align: right; }
+  text-align: right;
+  margin-bottom: 1rem; }
 
 .search-input, .search-field {
   width: 20rem;
   display: inline-block;
   margin-left: 0.5rem; }
 
-.search-term-block {
+.search-term-block, .sort-field-block {
   display: inline-block;
   text-align: left; }
+
+table td, table th {
+  font-size: 0.8rem; }
+
+h2 {
+  font-size: 2rem; }
+
+#content {
+  overflow: scroll; }
