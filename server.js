@@ -8,7 +8,7 @@ const sass = require('node-sass');
 
 
 router.use((req, res, next) => {
-  console.log("/" + req.method);
+  console.log(req.method + " " + req.path);
   next();
 });
 

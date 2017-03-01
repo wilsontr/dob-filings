@@ -41,7 +41,7 @@ function initApp() {
 }  
 
 function renderTopUI() {
-	$.get(globals.apiUrl + '/applicant/fields')
+	$.get(globals.apiUrl + 'applicant/fields')
 		.then(function(fields) {
 			renderSearch(fields);
 			renderSort(fields);
@@ -114,7 +114,7 @@ function fetchApplicants() {
 		sortField: globals.sortField
 	};
 
-	$.get(globals.apiUrl + '/applicants', options).then(function(response) {
+	$.get(globals.apiUrl + 'applicants', options).then(function(response) {
 		if ( response ) {
 			renderApplicants(response.result);
 			bindRowEvents();
@@ -188,7 +188,7 @@ function handleSortChange(e) {
 }
 
 function showModal(applicantId) {
-	$.get(globals.apiUrl + '/applicant/' + applicantId).then(function(response) {
+	$.get(globals.apiUrl + 'applicant/' + applicantId).then(function(response) {
 		var fullApplicant = renderTemplate('fullApplicant', {
 			'applicant': response
 		});	

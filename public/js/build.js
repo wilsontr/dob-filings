@@ -41,7 +41,7 @@ function initApp() {
 }  
 
 function renderTopUI() {
-	$.get(globals.apiUrl + '/applicant/fields')
+	$.get(globals.apiUrl + 'applicant/fields')
 		.then(function(fields) {
 			renderSearch(fields);
 			renderSort(fields);
@@ -114,7 +114,7 @@ function fetchApplicants() {
 		sortField: globals.sortField
 	};
 
-	$.get(globals.apiUrl + '/applicants', options).then(function(response) {
+	$.get(globals.apiUrl + 'applicants', options).then(function(response) {
 		if ( response ) {
 			renderApplicants(response.result);
 			bindRowEvents();
@@ -188,7 +188,7 @@ function handleSortChange(e) {
 }
 
 function showModal(applicantId) {
-	$.get(globals.apiUrl + '/applicant/' + applicantId).then(function(response) {
+	$.get(globals.apiUrl + 'applicant/' + applicantId).then(function(response) {
 		var fullApplicant = renderTemplate('fullApplicant', {
 			'applicant': response
 		});	
@@ -224,10 +224,8 @@ var templates = {
 	prevButton: '<button class="button primary" id="previous-button" disabled>Previous Page</button>',
 	nextButton: '<button class="button primary" id="next-button" disabled>Next Page</button>',
 	contentTable: '<table class="table"></table>',
-	//tableHead: '<thead><tr>{{#each headers}}<th class="sort-header data-sortBy="{{sortBy}}">{{title}}</th>{{/each}}</tr></thead>',
 	tableHead: '<thead><tr>{{#each headers}}<th class="sort-header data-sortBy="{{@key}}">{{this}}</th>{{/each}}</tr></thead>',
 	tableBody: '<tbody id="table-content"></tbody>',
-	//applicantRow: '<tr class="applicant-row" data-id="{{_id}}"><td>{{full_name}}</td><td>{{job_status_descrp}}</td><td>{{latest_action_date}}</td></tr>',
 	applicantRow: '<tr class="applicant-row" data-id="{{id}}">{{#each fields}}<td>{{this}} &nbsp;</td>{{/each}}</tr>',
 	modal: '<div id="detail-modal"></div>',
 	modalContent: '<div class="modal-content">{{{content}}}<div><div class="modal-buttons"></div>',
